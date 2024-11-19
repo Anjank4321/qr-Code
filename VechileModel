@@ -1,0 +1,28 @@
+//ManufactureModel
+import Foundation
+struct ManufactureYear : Codable {
+    let text : String?
+    let value : Int?
+    let images : String?
+
+    enum CodingKeys: String, CodingKey {
+
+        case text = "text"
+        case value = "value"
+        case images = "images"
+    }
+}
+// VechileModel
+import Foundation
+struct VehicleCapacity : Codable {
+    let text : String?
+    let value : Int?
+    let images : String?
+
+    enum CodingKeys: String, CodingKey {
+
+        case text = "text"
+        case value = "value"
+        case images = "images"
+    }
+}
