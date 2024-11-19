@@ -1,0 +1,51 @@
+import Foundation
+struct VehicleMake : Codable {
+    let text : String?
+    let value : Int?
+    let images : String?
+
+    enum CodingKeys: String, CodingKey {
+
+        case text = "text"
+        case value = "value"
+        case images = "images"
+    }
+}
+
+//vechile tyoe
+import Foundation
+struct VehicleType : Codable {
+    let text : String?
+    let value : Int?
+    let images : String?
+
+    enum CodingKeys: String, CodingKey {
+
+        case text = "text"
+        case value = "value"
+        case images = "images"
+    }
+}
+
+// vechileDetails
+import Foundation
+struct VehicleDetails : Codable {
+    let status : Int?
+    let message : String?
+    let vehicleType : [VehicleType]?
+    let vehicleCapacity : [VehicleCapacity]?
+    let vehicleMake : [VehicleMake]?
+    let manufactureYear : [ManufactureYear]?
+    let fuelType : [FuelType]?
+
+    enum CodingKeys: String, CodingKey {
+
+        case status = "status"
+        case message = "message"
+        case vehicleType = "vehicle_type"
+        case vehicleCapacity = "vehicle_capacity"
+        case vehicleMake = "vehicle_make"
+        case manufactureYear = "manufacture_year"
+        case fuelType = "fuel_type"
+    }
+}
