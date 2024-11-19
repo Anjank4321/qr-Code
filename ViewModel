@@ -1,0 +1,49 @@
+// Request Models
+import Foundation
+struct TaskRequest: Codable {
+    let clientid: Int
+    let enterprise_code: Int
+    let mno: String
+    let passcode: Int
+}
+// ViewModel - VehicleViewModel
+import Foundation
+    
+class VehicleViewModel {
+
+    var onVehicleDataReceived: ((VehicleDetails) -> Void)?
+    var onError: ((String) -> Void)?
+
+    func configureTask(clientID: Int, enterpriseCode: Int, mno: String, passcode: Int) {
+        guard let url = URL(string: Constants.vehicleUrl) else {
+            onError?("Invalid URL")
+            return
+        }
+        let taskRequest = TaskRequest(clientid: clientID, enterprise_code: enterpriseCode, mno: mno,passcode: passcode)
+            guard let httpBody = try? JSONEncoder().encode(taskRequest) else {
+                onError?("Failed to encode request body")
+                return
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = httpBody
+            let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+                if let error = error {
+                    self?.onError?("Error: \(error.localizedDescription)")
+                    return
+                }
+                guard let data = data else {
+                    self?.onError?("No data returned")
+                    return
+                }
+                do {
+                    let taskResponse = try JSONDecoder().decode(VehicleDetails.self, from: data)
+                    self?.onVehicleDataReceived?(taskResponse)
+                } catch {
+                    self?.onError?("Failed to decode response: \(error.localizedDescription)")
+                }
+            }
+            task.resume()
+        }
+    }
