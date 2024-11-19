@@ -1,0 +1,14 @@
+import Foundation
+class Constants {
+    static let vehicleUrl = "http://103.123.173.50:8090/jhsmobileapi/mobile/configure/v1/task"
+}
+enum TextFieldType:Int,CaseIterable{
+    case vehicletype = 0
+    case Make = 1
+    case Model = 2
+    case variant = 3
+    case YOM = 4
+    case fuelType = 5
+    case capacity = 6
+    case driver = 7
+}
