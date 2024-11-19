@@ -1,0 +1,83 @@
+
+
+
+import UIKit
+
+class CustomTextField: UITextField,UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate {
+    
+    var dropDownSelected: ((String) -> Void)?
+    var selectedValue = ""
+    var rowValues : [String] = []
+    private var dropdownButton: UIButton!
+    let pickerView = UIPickerView()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupRightView()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        setupRightView()
+    }
+    
+    private func setupRightView() {
+        dropdownButton = UIButton(type: .custom)
+        dropdownButton.setImage(UIImage(systemName: "chevron.down"), for: .normal)
+        dropdownButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        dropdownButton.addTarget(self, action: #selector(dropdownTapped), for: .touchUpInside)
+        self.rightView = dropdownButton
+        self.rightViewMode = .always
+        setupPickerView()
+    }
+    @objc private func dropdownTapped() {
+        self.becomeFirstResponder()
+    }
+    func setupPickerView() {
+        
+        pickerView.delegate = self
+        pickerView.dataSource = self
+        self.inputView = pickerView
+        
+        self.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            self.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            self.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            self.widthAnchor.constraint(equalToConstant: 250),
+            self.heightAnchor.constraint(equalToConstant: 40)
+        ])
+        addDoneButtonOnPicker()
+    }
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return rowValues.count
+    }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        if selectedValue == "" {
+            selectedValue = rowValues[0]
+        }
+        return rowValues[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        selectedValue = rowValues[row]
+    }
+    
+    private func addDoneButtonOnPicker() {
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        
+        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(doneButtonTapped))
+        let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbar.setItems([spaceButton, doneButton], animated: true)
+        self.inputAccessoryView = toolbar
+    }
+    
+    @objc private func doneButtonTapped() {
+        self.text = selectedValue
+        dropDownSelected?(selectedValue)
+        self.resignFirstResponder()
+    }
+}
