@@ -1,0 +1,146 @@
+
+import UIKit
+import AVFoundation
+
+class ViewController: UIViewController {
+    
+    var viewModel:VehicleViewModel?
+    @IBOutlet weak var ownRadioButton: UIButton!
+    @IBOutlet weak var transporterRadioButton: UIButton!
+    @IBOutlet weak var driverTextField: CustomTextField!
+    @IBOutlet weak var capacityTextField: CustomTextField!
+    @IBOutlet weak var fuelTypeTextField: CustomTextField!
+    @IBOutlet weak var yomTextField: CustomTextField!
+    @IBOutlet weak var variantTextField: CustomTextField!
+    @IBOutlet weak var modelTextField: CustomTextField!
+    @IBOutlet weak var makeTextField: CustomTextField!
+    @IBOutlet weak var vehicleTypeTextField: CustomTextField!
+    @IBOutlet weak var registrationNUmberTextField: UITextField!
+    @IBOutlet weak var valueNameTextField: UITextField!
+    @IBOutlet weak var imeiTextField: UITextField!
+    @IBOutlet weak var tagNameTextField: UITextField!
+    
+    private var selectedButton: UIButton?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.setupViewModel()
+        self.checkCameraPermissions()
+        selectedButton = ownRadioButton
+        ownRadioButton.isSelected = true
+    }
+    
+    private func setupViewModel() {
+        viewModel = VehicleViewModel()
+        viewModel?.onVehicleDataReceived = { [weak self] vehicleDetails in
+            DispatchQueue.main.async {
+                self?.setupTextfields(with: vehicleDetails)
+            }
+        }
+        viewModel?.onError = { [weak self] errorMessage in
+            DispatchQueue.main.async {
+                print("Error occurred: \(errorMessage)")
+            }
+        }
+        viewModel?.configureTask(clientID: 11, enterpriseCode: 1007, mno: "9889897789", passcode: 3476)
+    }
+    
+    func setupTextfields(with data: VehicleDetails){
+        driverTextField.rowValues = ["Driver","owner"]
+        driverTextField?.dropDownSelected = { value in
+            print("selected Value \(value)")
+        }
+        
+        if let vehicleCapacity = data.vehicleCapacity{
+            capacityTextField.rowValues = vehicleCapacity.map({ capacity in
+                capacity.text ?? ""
+            })
+        }
+        capacityTextField?.dropDownSelected = { value in
+            print("selected Value \(value)")
+        }
+        if let fuelType = data.fuelType{
+            fuelTypeTextField.rowValues = fuelType.map({ type in
+                type.text ?? ""
+            })
+        }
+        fuelTypeTextField?.dropDownSelected = { value in
+            print("selected Value \(value)")
+        }
+        
+        if let MOY = data.manufactureYear {
+            yomTextField.rowValues = MOY.map({ year in year.text ?? ""})
+        }
+        yomTextField?.dropDownSelected = { value in
+            print("selected Value \(value)")
+        }
+        
+        variantTextField?.rowValues = ["No variant Available"]
+        variantTextField?.dropDownSelected = { value in
+            print("selected Value \(value)")
+        }
+        
+        modelTextField?.rowValues = ["No model Available"]
+        modelTextField?.dropDownSelected = { value in
+            print("selected Value \(value)")
+        }
+        
+        if let make = data.vehicleMake{
+            makeTextField.rowValues = make.map({ make in make.text ?? ""})
+        }
+        makeTextField?.dropDownSelected = { value in
+            print("selected Value \(value)")
+        }
+        
+        if let type = data.vehicleType{
+            vehicleTypeTextField.rowValues = type.map({ type in type.text ?? ""})
+        }
+        vehicleTypeTextField?.dropDownSelected = { value in
+            print("selected Value \(value)")
+        }
+    }
+    
+    @IBAction func scanner(_ sender: Any) {
+        let scannerVC = self.storyboard?.instantiateViewController(withIdentifier: "QRScannerViewController") as! QRScannerViewController
+        scannerVC.delegate = self
+        scannerVC.modalPresentationStyle = .overCurrentContext
+        present(scannerVC, animated: true, completion: nil)
+    }
+    
+    @IBAction func ownRadioButton(_ sender: UIButton) {
+        selectedButton?.isSelected = false
+        sender.isSelected = true
+        selectedButton = sender
+    }
+    func checkCameraPermissions() {
+        let cameraAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+        
+        switch cameraAuthorizationStatus {
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                if granted {
+                    print("Camera access granted")
+                } else {
+                    print("Camera access denied")
+                }
+            }
+        case .restricted, .denied:
+            print("Camera access restricted/denied")
+        case .authorized:
+            print("Camera access authorized")
+        @unknown default:
+            print("Unknown authorization status")
+        }
+    }
+    
+    func showPicker(){
+        
+    }
+}
+
+
+extension ViewController: QRDelegate {
+    func sendQRString(Code: String) {
+        imeiTextField.text = Code
+    }
+}
