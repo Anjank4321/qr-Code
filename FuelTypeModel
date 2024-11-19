@@ -1,0 +1,21 @@
+import Foundation
+struct FuelType : Codable {
+    let text : String?
+    let value : Int?
+    let images : String?
+
+    enum CodingKeys: String, CodingKey {
+
+        case text = "text"
+        case value = "value"
+        case images = "images"
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        text = try values.decodeIfPresent(String.self, forKey: .text)
+        value = try values.decodeIfPresent(Int.self, forKey: .value)
+        images = try values.decodeIfPresent(String.self, forKey: .images)
+    }
+
+}
